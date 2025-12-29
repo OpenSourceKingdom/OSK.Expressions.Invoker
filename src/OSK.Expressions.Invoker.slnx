@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="OSK.Expression.Invoker.UnitTests/OSK.Expression.Invoker.UnitTests.csproj" Id="f68c94f1-72aa-439f-ae6c-2c5db190c26b" />
+  <Project Path="OSK.Expressions.Invoker/OSK.Expressions.Invoker.csproj" />
+</Solution>
