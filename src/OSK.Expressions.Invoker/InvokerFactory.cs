@@ -21,7 +21,7 @@ namespace OSK.Expressions.Invoker
         #region Api
 
         /// <summary>
-        /// Create a <see cref="IInvoker"/> using a strongly typed reference.
+        /// Create a <see cref="IInvoker"/> using a strongly typed reference and an expression to retrieve the member data.
         /// </summary>
         /// <typeparam name="T">The object target type</typeparam>
         /// <param name="memberSelector">An expression to retrieve the member</param>
@@ -30,13 +30,22 @@ namespace OSK.Expressions.Invoker
             => CreateInvoker(typeof(T), GetMemberInfo(memberSelector));
 
         /// <summary>
-        /// Create a <see cref="IInvoker"/> using a strongly typed reference.
+        /// Create a <see cref="IInvoker"/> using a strongly typed reference and an expression to retrieve the member data.
         /// </summary>
         /// <typeparam name="T">The object target type</typeparam>
         /// <param name="memberSelector">An expression to retrieve the member</param>
         /// <returns><see cref="IInvoker"/></returns>
         public static IInvoker CreateInvoker<T>(Expression<Func<T, object>> memberSelector)
             => CreateInvoker(typeof(T), GetMemberInfo(memberSelector));
+
+        /// <summary>
+        /// Create a <see cref="IInvoker"/> using a strongly typed reference and a member info
+        /// </summary>
+        /// <typeparam name="T">The object target type</typeparam>
+        /// <param name="memberInfo">The member info to create an invoker for</param>
+        /// <returns><see cref="IInvoker"/></returns>
+        public static IInvoker CreateInvoker<T>(MemberInfo memberInfo)
+            => CreateInvoker(typeof(T), memberInfo);
 
         /// <summary>
         /// Creates a <see cref="IInvoker"/> using a <see cref="MemberInfo"/>, provided a target object type
@@ -63,7 +72,7 @@ namespace OSK.Expressions.Invoker
                 return MemberToWrapperMap.GetOrAdd(methodKey, memberKey =>
                 {
                     var compiledExpression = CreateMethodCompiledExpression(memberKey.InvocationTargetType, methodInfo, false);
-                    return new FastInvoker(compiledExpression, memberKey, InvocationType.Method);
+                    return new FastInvoker(compiledExpression, memberKey, InvocationType.Method, invocationTargetType);
                 });
             }
 
@@ -72,7 +81,8 @@ namespace OSK.Expressions.Invoker
             {
                 var (compiledExpression, memberType) = CreateMemberCompiledExpression(invocationTargetType, memberInfo);
                 return new FastInvoker(compiledExpression, k.SetParameterTypes(memberType), 
-                    memberInfo is PropertyInfo _ ? InvocationType.Property : InvocationType.Field);
+                    memberInfo is PropertyInfo _ ? InvocationType.Property : InvocationType.Field,
+                    invocationTargetType);
             });
         }
 

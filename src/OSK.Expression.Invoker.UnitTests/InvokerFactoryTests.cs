@@ -29,6 +29,7 @@ namespace OSK.Expression.Invoker.UnitTests
             Assert.Equal(typeof(int), invoker.ParameterTypes[0]);
             Assert.Equal(typeof(int), invoker.ReturnType);
             Assert.Equal(InvocationType.Field, invoker.InvocationType);
+            Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
         }
 
         [Fact]
@@ -51,6 +52,7 @@ namespace OSK.Expression.Invoker.UnitTests
             Assert.Equal(typeof(int), invoker.ParameterTypes[0]);
             Assert.Equal(typeof(int), invoker.ReturnType);
             Assert.Equal(InvocationType.Field, invoker.InvocationType);
+            Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
         }
 
         #endregion
@@ -76,6 +78,7 @@ namespace OSK.Expression.Invoker.UnitTests
             Assert.Equal(typeof(int), invoker.ParameterTypes[0]);
             Assert.Equal(typeof(int), invoker.ReturnType);
             Assert.Equal(InvocationType.Property, invoker.InvocationType);
+            Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
         }
 
         #endregion
@@ -101,6 +104,7 @@ namespace OSK.Expression.Invoker.UnitTests
             Assert.Equal(typeof(int), invoker.ParameterTypes[0]);
             Assert.Equal(typeof(void), invoker.ReturnType);
             Assert.Equal(InvocationType.Method, invoker.InvocationType);
+            Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
         }
 
         [Fact]
@@ -122,6 +126,7 @@ namespace OSK.Expression.Invoker.UnitTests
             Assert.Equal(typeof(int), invoker.ParameterTypes[0]);
             Assert.Equal(typeof(int), invoker.ReturnType);
             Assert.Equal(InvocationType.Method, invoker.InvocationType);
+            Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
         }
 
         #endregion

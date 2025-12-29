@@ -4,11 +4,14 @@ using System;
 
 namespace OSK.Expressions.Invoker.Internal;
 
-internal sealed class FastInvoker(Func<object, object[], object> func, MemberKey memberKey, InvocationType invocationType) : IInvoker
+internal sealed class FastInvoker(Func<object, object[], object> func, MemberKey memberKey, InvocationType invocationType,
+    Type invokeTargetType) : IInvoker
 {
     #region IInvoker
 
     public InvocationType InvocationType => invocationType;
+
+    public Type InvokeTargetType => invokeTargetType;
 
     public Type ReturnType => memberKey.ReturnType;
 
