@@ -1,7 +1,6 @@
 ﻿using OSK.Expressions.Invoker.Internal;
 using OSK.Expressions.Invoker.Models;
 using OSK.Expressions.Invoker.Ports;
-using OSK.Hexagonal.MetaData;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -35,7 +34,7 @@ namespace OSK.Expressions.Invoker
         /// </summary>
         /// <typeparam name="T">The object target type</typeparam>
         /// <param name="memberSelector">An expression to retrieve the member</param>
-        /// <returns><see cref="IInvoker>"/></returns>
+        /// <returns><see cref="IInvoker"/></returns>
         public static IInvoker CreateInvoker<T>(Expression<Func<T, object>> memberSelector)
             => CreateInvoker(typeof(T), GetMemberInfo(memberSelector));
 
