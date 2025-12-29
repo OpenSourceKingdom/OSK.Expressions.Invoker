@@ -26,8 +26,8 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-version }}
     - name: Restore dependencies
       run: >-
-        dotnet restore ./src/${{ github.event.repository.name }}.sln
+        dotnet restore ./src/${{ github.event.repository.name }}.slnx
     - name: Build
-      run: dotnet build --no-restore ./src/${{ github.event.repository.name }}.sln
+      run: dotnet build --no-restore ./src/${{ github.event.repository.name }}.slnx
     - name: Test
-      run: dotnet test --no-build --verbosity normal ./src/${{ github.event.repository.name }}.sln
+      run: dotnet test --no-build --verbosity normal ./src/${{ github.event.repository.name }}.slnx
