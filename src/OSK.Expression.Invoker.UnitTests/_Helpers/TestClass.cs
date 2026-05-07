@@ -1,26 +1,25 @@
-﻿namespace OSK.Expression.Invoker.UnitTests._Helpers
+﻿namespace OSK.Expression.Invoker.UnitTests._Helpers;
+
+public class TestClass
 {
-    public class TestClass
+    public int PropertyA { get; set; }
+    public int PropertyB;
+    private int _propertyC;
+
+    public void SetC(int c)
     {
-        public int PropertyA { get; set; }
-        public int PropertyB;
-        private int _propertyC;
+        _propertyC = c; 
+    }
 
-        public void SetC(int c)
-        {
-            _propertyC = c; 
-        }
+    public int PropertyC => _propertyC;
 
-        public int PropertyC => _propertyC;
+    public void MethodA(int a)
+    {
+        PropertyA = a;
+    }
 
-        public void MethodA(int a)
-        {
-            PropertyA = a;
-        }
-
-        public int MethodB(int c)
-        {
-            return c;
-        }
+    public int MethodB(int c)
+    {
+        return c;
     }
 }

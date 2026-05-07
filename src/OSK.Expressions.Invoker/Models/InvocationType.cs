@@ -1,9 +1,10 @@
-﻿namespace OSK.Expressions.Invoker.Models
+﻿using System;
+
+namespace OSK.Expressions.Invoker.Models;
+
+public enum InvocationType
 {
-    public enum InvocationType
-    {
-        Method,
-        Property,
-        Field
-    }
+    Method,
+    Property,
+    Field
 }
