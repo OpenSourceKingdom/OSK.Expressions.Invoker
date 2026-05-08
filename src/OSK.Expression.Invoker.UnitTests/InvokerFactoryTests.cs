@@ -147,6 +147,25 @@ public class InvokerFactoryTests
         Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
     }
 
+    [Fact]
+    public void InvokerFactory_Class_Public_PropertyGetterOnly()
+    {
+        // Arrange
+        var testClass = new TestClass();
+
+        // Act
+        var invoker = InvokerFactory.CreateInvoker<TestClass>(t => t.PropertyDGetter);
+        var d = invoker.FastInvoke<int>(testClass);
+
+        // Assert
+        Assert.Equal(testClass.PropertyDGetter, d);
+        Assert.Single(invoker.ParameterTypes);
+        Assert.Equal(typeof(int), invoker.ParameterTypes[0]);
+        Assert.Equal(typeof(int), invoker.ReturnType);
+        Assert.Equal(InvocationType.Property, invoker.InvocationType);
+        Assert.Equal(typeof(TestClass), invoker.InvokeTargetType);
+    }
+
     #endregion
 
     #region Methods

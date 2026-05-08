@@ -66,8 +66,8 @@ public static class InvokerFactory
 
         if (memberInfo is MethodInfo methodInfo)
         {
-            var methodKey = new MemberKey(invocationTargetType, methodInfo.Name, 
-                methodInfo.GetParameters().Select(p => p.ParameterType).ToArray(), GetReturnType(memberInfo));
+            var methodKey = new MemberKey(invocationTargetType, methodInfo.Name,
+                [.. methodInfo.GetParameters().Select(p => p.ParameterType)], GetReturnType(memberInfo));
             return MemberInvokerMapLookup.GetOrAdd(methodKey, memberKey =>
             {
                 var methodAccessorExpression = CreateMethodCompiledExpression(memberKey.InvocationTargetType, methodInfo);
@@ -79,7 +79,7 @@ public static class InvokerFactory
         return MemberInvokerMapLookup.GetOrAdd(memberKey, k =>
         {
             var accessorExpressions = CreateAccessorExpressions(invocationTargetType, memberInfo);
-            return new FastInvoker(accessorExpressions.AccessorCallback, accessorExpressions.GetterCallback, k.SetParameterTypes(accessorExpressions.MemberType), 
+            return new FastInvoker(accessorExpressions.SetterCallback, accessorExpressions.GetterCallback, k.SetParameterTypes(accessorExpressions.MemberType), 
                 memberInfo is PropertyInfo _ ? InvocationType.Property : InvocationType.Field,
                 invocationTargetType);
         });
@@ -147,7 +147,7 @@ public static class InvokerFactory
         return (Func<object, object[], object>)lambda;
     }
 
-    private static (Func<object, object[], object> AccessorCallback, Func<object, object>? GetterCallback, Type MemberType) CreateAccessorExpressions(Type type, MemberInfo memberInfo)
+    private static (Func<object, object> GetterCallback, Func<object, object[], object>? SetterCallback, Type MemberType) CreateAccessorExpressions(Type type, MemberInfo memberInfo)
     {
         var targetExp = Expression.Parameter(typeof(object), "target");
         var argsExp = Expression.Parameter(typeof(object[]), "args");
@@ -160,7 +160,7 @@ public static class InvokerFactory
                 propertyInfo.Name,
                 MemberType = propertyInfo.PropertyType,
                 IsProperty = true,
-                HasGetter = propertyInfo.CanRead,
+                HasSetter = propertyInfo.CanWrite,
                 IsInitOnly = propertyInfo.SetMethod?.ReturnParameter.GetRequiredCustomModifiers().Contains(typeof(System.Runtime.CompilerServices.IsExternalInit)) ?? false
             },
             FieldInfo fieldInfo => new
@@ -168,7 +168,7 @@ public static class InvokerFactory
                 fieldInfo.Name,
                 MemberType = fieldInfo.FieldType,
                 IsProperty = false,
-                HasGetter = true,
+                HasSetter = true,
                 fieldInfo.IsInitOnly
             },
             _ => throw new InvalidOperationException($"Unable to create accessor expressions for member info of type {memberInfo.GetType().FullName}")
@@ -181,22 +181,23 @@ public static class InvokerFactory
         var valueObjExp = Expression.ArrayIndex(argsExp, Expression.Constant(0));
         var castValueExp = Expression.Convert(valueObjExp, memberExp.Type);
 
-        Func<object, object>? getterCallback = null;
-        if (expressionData.HasGetter)
+        var getterBody = Expression.Convert(memberExp, typeof(object));
+        var getterExpression = Expression.Lambda<Func<object, object>>(getterBody, targetExp);
+        var getterCallback = getterExpression.Compile();
+
+        Func<object, object[], object>? setterCallback = null;
+        if (expressionData.HasSetter)
         {
-            var getterBody = Expression.Convert(memberExp, typeof(object));
-            var getterExpression = Expression.Lambda<Func<object, object>>(getterBody, targetExp);
-            getterCallback = getterExpression.Compile();
+            var assignExp = Expression.Assign(memberExp, castValueExp);
+            Expression setterBody = memberExp.Type.IsValueType
+                ? Expression.Convert(assignExp, typeof(object))
+                : assignExp;
+            var setterExpression = Expression.Lambda(setterBody, targetExp, argsExp);
+
+            setterCallback = (Func<object, object[], object>)setterExpression.Compile();
         }
 
-        var assignExp = Expression.Assign(memberExp, castValueExp);
-        Expression setterBody = memberExp.Type.IsValueType
-            ? Expression.Convert(assignExp, typeof(object))
-            : assignExp;
-        var setterExpression = Expression.Lambda(setterBody, targetExp, argsExp);
-
-        var accessorCallback = (Func<object, object[], object>)setterExpression.Compile();
-        return new(accessorCallback, getterCallback, memberExp.Type);
+        return new(getterCallback, setterCallback, memberExp.Type);
     }
 
     private static void CreateParamsExpressions(MethodBase method, out ParameterExpression argsExp, out Expression[] paramsExps)
