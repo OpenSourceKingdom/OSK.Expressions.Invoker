@@ -6,6 +6,8 @@ public class TestClass
     public int PropertyB;
     private int _propertyC;
 
+    public int PropertyDGetter { get; }
+
     public void SetC(int c)
     {
         _propertyC = c; 

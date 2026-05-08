@@ -4,7 +4,7 @@ using System;
 
 namespace OSK.Expressions.Invoker.Internal;
 
-internal sealed class FastInvoker(Func<object, object[], object> accessorCallback, Func<object, object>? getterCallback, MemberKey memberKey, InvocationType invocationType,
+internal sealed class FastInvoker(Func<object, object[], object>? accessorCallback, Func<object, object>? getterCallback, MemberKey memberKey, InvocationType invocationType,
     Type invokeTargetType) : IInvoker
 {
     #region IInvoker
@@ -18,9 +18,24 @@ internal sealed class FastInvoker(Func<object, object[], object> accessorCallbac
     public Type[] ParameterTypes => memberKey.ParameterTypes ?? [];
 
     public object FastInvoke(object target, params object[] args)
-        => invocationType is InvocationType.Method || getterCallback is null || args is { Length: >0 }
-            ? accessorCallback(target, args)
-            : getterCallback(target);
+    {
+        if (invocationType is InvocationType.Method || args is { Length: > 0 })
+        {
+            if (accessorCallback is null)
+            {
+                throw new InvalidOperationException($"No accessor/setter callback exists for the invocation of target type {target.GetType().FullName}.");
+            }
+
+            return accessorCallback(target, args);
+        }
+
+        if (getterCallback is null)
+        {
+            throw new InvalidOperationException("No getter callback exists for getter invocation.");
+        }
+
+        return getterCallback(target);
+    }
 
     #endregion
 }
