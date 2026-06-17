@@ -33,6 +33,26 @@ public class InvokerFactoryTests
     }
 
     [Fact]
+    public void InvokerFactory_Internal_Property_GetterSetter()
+    {
+        // Arrange
+        var testClass = new TestClass()
+        {
+            PropertyD = 5
+        };
+
+        var invoker = InvokerFactory.CreateInvoker<TestClass>(t => t.PropertyD);
+
+        // Act
+        var originalValue = invoker.FastInvoke<int>(testClass);
+        invoker.FastInvoke(testClass, [10]);
+
+        // Assert
+        Assert.Equal(5, originalValue);
+        Assert.Equal(10, testClass.PropertyD);
+    }
+
+    [Fact]
     public void InvokerFactory_Class_Public_FieldGetter()
     {
         // Arrange
