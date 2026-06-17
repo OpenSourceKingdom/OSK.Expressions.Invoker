@@ -41,17 +41,14 @@ public class InvokerFactoryTests
             PropertyD = 5
         };
 
-        // Act - getter
         var invoker = InvokerFactory.CreateInvoker<TestClass>(t => t.PropertyD);
-        var val = invoker.FastInvoke<int>(testClass);
 
-        // Assert getter
-        Assert.Equal(5, val);
-
-        // Act - setter
+        // Act
+        var originalValue = invoker.FastInvoke<int>(testClass);
         invoker.FastInvoke(testClass, [10]);
 
-        // Assert setter
+        // Assert
+        Assert.Equal(5, originalValue);
         Assert.Equal(10, testClass.PropertyD);
     }
 
