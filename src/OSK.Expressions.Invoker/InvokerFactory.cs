@@ -174,9 +174,10 @@ public static class InvokerFactory
             _ => throw new InvalidOperationException($"Unable to create accessor expressions for member info of type {memberInfo.GetType().FullName}")
         };
 
+        var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         var memberExp = expressionData.IsProperty
-            ? Expression.Property(castArgExp, type.GetRuntimeProperty(expressionData.Name))
-            : Expression.Field(castArgExp, type.GetField(expressionData.Name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
+            ? Expression.Property(castArgExp, type.GetProperty(expressionData.Name, bindingFlags))
+            : Expression.Field(castArgExp, type.GetField(expressionData.Name, bindingFlags));
 
         var valueObjExp = Expression.ArrayIndex(argsExp, Expression.Constant(0));
         var castValueExp = Expression.Convert(valueObjExp, memberExp.Type);
